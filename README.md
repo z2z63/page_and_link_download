@@ -106,7 +106,6 @@ communicating."**
    等优良设计，以及配套的hot reload、Inspector、Outliner等工具，提高了开发效率
 
 ![img_1.png](images/img_1.png)
-![img_2.png](images/img_2.png)
-![img_3.png](images/img_3.png)
+![img_3.jpg](images/img_3.jpg)
 ![img_4.png](images/img_4.png)
 ![img_5.png](images/img_5.png)
