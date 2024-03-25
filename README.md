@@ -53,7 +53,11 @@ rust实现IO、计算等繁重任务，dart实现UI、逻辑等轻量任务，�
 
 ## dart实现的仿python scrapy爬虫框架
 
-主要参考了python scrapy的设计，采用了广度优先的树遍历算法，允许使用类似声明式的方式描述爬虫逻辑，而自动去重、异常处理等功能则是框架内部实现的
+主要参考了python scrapy的设计，采用了广度优先的树遍历算法，允许使用类似声明式的方式描述爬虫逻辑，而自动去重、
+异常处理等功能则是框架内部实现的
+
+![img.png](images/img_6.png)
+scrapy架构图，图中除了item pipeline和middleware，其他均有简单实现
 
 ## dart实现的爬虫
 
@@ -62,7 +66,7 @@ rust实现IO、计算等繁重任务，dart实现UI、逻辑等轻量任务，�
 1. 我的个人博客 https://blog.virtualfuture.top/
 2. vue的官方网站 https://vuejs.org/
 
-这两个网站的特点是静态资源多，动态加载的资源较少，下载后的预览效果比较好
+这两个网站的特点是静态资源多，动态加载的资源较少，下载后的预览效果比较好  
 使用xpath精准提取HTML中的链接，包括
 
 - `//link/@href` CSS引用、网站图标、预加载资源等
@@ -85,6 +89,7 @@ flutter是Google推出的跨平台UI框架，使用dart语言
 原理是将每一节点看作电荷，每一条边看作弹簧，电荷是同性的所以相互排斥提供斥力，弹簧长度大于平衡长度所以提供引力  
 斥力使得每一个节点相互远离，而引力使得通过边相连的节点相互靠近，当系统达到能量最低的状态时，有关系的节点汇聚在一起，
 无关系的节点远离
+![img.png](images/img_8.png)
 
 使用flutter官方favor的`provider`管理状态，`provider`是基于`InheritedWidget`
 的薄封装，消除了很多繁琐代码的同时保持了flutter局部刷新的特性
@@ -95,6 +100,7 @@ flutter是Google推出的跨平台UI框架，使用dart语言
 
 Isolate是dart的并发概念，相当于线程，但是Isolate之间无法共享内存，只能通过消息传递机制进行通信。每个Isolate都有自己的事件循环，
 Isolate之间由于无法共享内存，所以不会出现数据竞争等问题，几乎不需要基于锁的同步机制，并发性能高而且避免了使用锁带来的隐性问题
+![img.png](images/img_7.png)
 
 dart的Isolate符合go的设计理念：**"Don't communicate by sharing memory; share memory by
 communicating."**
