@@ -1,0 +1,16 @@
+[package]
+name = "rust_lib_my_app"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+async-std = "1.12.0"
+async-tls = { version = "0.13.0", features = ["client"] }
+bytes = "1.5.0"
+flutter_rust_bridge = "=2.0.0-dev.28"
+futures = "0.3.30"
+url = "2.5.0"
+getrandom = { version = "0.2", features = ["js"] }
