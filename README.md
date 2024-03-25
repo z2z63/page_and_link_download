@@ -39,7 +39,7 @@
 ## rust
 
 rust是一个内存安全、并发安全、高性能的系统编程语言，有许多零开销抽象(zero-cost abstractions)
-，并有无空值、无GC等高级特性  
+，并有无空值、不依赖GC的静态内存管理等高级特性  
 同时rust还支持多种平台，可以编译成多种平台的目标文件  
 async-std是一个异步标准库，提供了异步的网络IO等功能，本项目依赖async-std提供的`TcpStream`实现异步读写socket，
 使用async-tls提供的`TlsConnector`实现了TLS层，为dart提供了仿python requests的HTTP请求库
