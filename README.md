@@ -42,7 +42,7 @@ rust是一个内存安全、并发安全、高性能的系统编程语言，有�
 ，并有无空值、无GC等高级特性  
 同时rust还支持多种平台，可以编译成多种平台的目标文件  
 async-std是一个异步标准库，提供了异步的网络IO等功能，本项目依赖async-std提供的`TcpStream`实现异步读写socket，
-使用async-tls提供的`TlsConnector`实现了TLS层
+使用async-tls提供的`TlsConnector`实现了TLS层，为dart提供了仿python requests的HTTP请求库
 
 ## flutter-rust-bridge
 
@@ -56,7 +56,7 @@ rust实现IO、计算等繁重任务，dart实现UI、逻辑等轻量任务，�
 主要参考了python scrapy的设计，采用了广度优先的树遍历算法，允许使用类似声明式的方式描述爬虫逻辑，而自动去重、
 异常处理等功能则是框架内部实现的
 
-![img.png](images/img_6.png)
+![img.png](images/img_6.png)  
 scrapy架构图，图中除了item pipeline和middleware，其他均有简单实现
 
 ## dart实现的爬虫
@@ -107,9 +107,9 @@ communicating."**
 
 ## 使用flutter的原因
 
-1. dart是一门特性齐全的现代语言，异步、并发、空值安全等设计理念现代，同时还能够AOT编译成多个平台的目标文件，性能接近原生而且跨平台
-2. flutter能够运行在web,android, ios, windows, macos, linux等多个平台，同时参考了react的设计理念，组件化、声明式
-   等优良设计，以及配套的hot reload、Inspector、Outliner等工具，提高了开发效率
+1. dart是一门特性齐全的现代语言，异步、并发、空值安全等设计理念现代，同时还能够AOT编译成多个平台的目标文件，性能接近原生
+2. flutter能够运行在web,android, ios, windows, macos, linux等多个平台，一份代码多端运行
+3. flutter参考了react的设计理念，组件化、声明式等优良设计，并提供hot reload、Inspector、Outliner等工具，提高了开发效率
 
 ![img_1.png](images/img_1.png)
 ![img_3.jpg](images/img_3.jpg)
