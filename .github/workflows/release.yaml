@@ -1,4 +1,7 @@
-on: push
+on:
+  push:
+    tags:
+      - "v*.*.*"
 jobs:
   build_linux:
     runs-on: ubuntu-latest
@@ -27,7 +30,8 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: app-release
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
             app-release/build/linux/x64/release/bundle/*
