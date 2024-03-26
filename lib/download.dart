@@ -9,9 +9,22 @@ import 'response.dart';
 import 'spider.dart';
 
 class MySpider extends Spider {
-  MySpider(super.addEdge, startUrl) : startUri = Uri.parse(startUrl);
+  MySpider(super.addEdge, startUrl) : startUri = Uri.parse(startUrl) {
+    var prefix = startUri.host;
+    if (startUri.pathSegments.isNotEmpty) {
+      prefix += '_${startUri.pathSegments.join('_')}';
+    }
+    downloadPath = 'download/$prefix';
+    if (Platform.isAndroid) {
+      downloadPath =
+          '/storage/emulated/0/Download/page_and_link_downloader/$downloadPath';
+    }
+  }
+
   @override
   final Uri startUri;
+
+  late String downloadPath;
 
   @override
   Iterable<Request> parse(Response response) sync* {
@@ -49,11 +62,7 @@ class MySpider extends Spider {
 
   Iterable<Request> save(Response response) sync* {
     // 保存文件，重写链接
-    var prefix = startUri.host;
-    if (startUri.pathSegments.isNotEmpty) {
-      prefix += '_${startUri.pathSegments.join('_')}';
-    }
-    var path = 'download/$prefix${response.uri.path}';
+    var path = downloadPath + response.uri.path;
     if (path.endsWith('/')) {
       path += 'index.html';
     }
@@ -89,12 +98,13 @@ class MySpider extends Spider {
   }
 }
 
-Future<void> download(
+Future<String> download(
     {required void Function(String, String) addEdge,
     required String startUrl}) async {
   await RustLib.init();
   final spider = MySpider(addEdge, startUrl);
   spider.run();
+  return spider.downloadPath;
 }
 
 String abs2relative(String base, String target) {

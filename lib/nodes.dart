@@ -6,7 +6,7 @@ final _paint = Paint()
   ..strokeWidth = 0.2
   ..style = PaintingStyle.stroke;
 
-class NodesNotifier extends ChangeNotifier {
+class NodesNotifier  {
   final graph = MyGraph<String>();
 
   void addEdge(String a, String b) {
@@ -28,7 +28,6 @@ class NodesNotifier extends ChangeNotifier {
         paint: _paint,
       );
       debugPrint('$a -> $b');
-      // notifyListeners();
     }
   }
 }

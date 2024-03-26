@@ -1,0 +1,23 @@
+jobs:
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '65cd84b588'
+          channel: 'master'
+      - uses: actions-rs/toolchain@v1
+      - run: flutter build linux --release
+  relase:
+    needs: build_linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: app-release
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app-release/build/linux/release/bundle/*
+on: push

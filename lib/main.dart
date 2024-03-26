@@ -12,9 +12,31 @@ import 'nodes.dart';
 void main() {
   runApp(
     MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('网页及链接下载')),
-        body: const MyApp(),
+      home: ChangeNotifierProvider(
+        create: (_) => ValueNotifier(0),
+        child: Consumer<ValueNotifier<int>>(
+          builder: (context, value, child) {
+            return Scaffold(
+              appBar: child as AppBar,
+              body: MyApp(
+                key: UniqueKey(),
+              ),
+            );
+          },
+          child: AppBar(
+            title: const Text('网页及链接下载'),
+            actions: [
+              Builder(builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    context.read<ValueNotifier<int>>().value++;
+                  },
+                );
+              })
+            ],
+          ),
+        ),
       ),
     ),
   );
@@ -27,24 +49,33 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => NodesNotifier()),
+        Provider(create: (_) => NodesNotifier()),
         ChangeNotifierProvider(create: (_) => ValueNotifier(false)),
         ChangeNotifierProvider(create: (_) => ValueNotifier((0.0025, 0.035))),
       ],
       child: Center(
         child: Column(
           children: [
-            Center(
-              child: SizedBox(
-                width: 600,
-                child: Row(
+            LayoutBuilder(builder: (context, constaints) {
+              if (constaints.maxWidth > 600) {
+                return Row(
                   children: [
                     Expanded(child: InputWidget()),
                     const SliderWidget(),
                   ],
-                ),
-              ),
-            ),
+                );
+              } else {
+                return SizedBox(
+                  height: 200,
+                  child: Column(
+                    children: [
+                      InputWidget(),
+                      const Expanded(child: SliderWidget()),
+                    ],
+                  ),
+                );
+              }
+            }),
             Expanded(
               child: Consumer<ValueNotifier<bool>>(
                 builder: (context, value, child) {
@@ -67,6 +98,47 @@ class InputWidget extends StatelessWidget {
 
   InputWidget({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 300, maxWidth: 400),
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      height: 100,
+      child: Column(
+        children: [
+          Expanded(
+            child: TextFormField(
+              key: formKey,
+              decoration: const InputDecoration(
+                labelText: '输入网址',
+                contentPadding: EdgeInsets.only(left: 10),
+              ),
+              validator: (input) {
+                if (input == null || input.isEmpty) {
+                  return '请输入网址';
+                }
+                final uri = Uri.tryParse(input);
+                if (uri == null || !['http', 'https'].contains(uri.scheme)) {
+                  return '请输入正确的网址';
+                }
+                return null;
+              },
+              onFieldSubmitted: (input) {
+                submit(input, context);
+              },
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              submit(formKey.currentState!.value, context);
+            },
+            child: const Text('下载'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> submit(String? input, BuildContext context) async {
     if (!formKey.currentState!.validate()) {
       return;
@@ -81,10 +153,10 @@ class InputWidget extends StatelessWidget {
         nodes.addEdge(data.$1, data.$2);
         value.value = true;
       } else if (data is SendPort) {
-        data.send(input!);
-      }else if(data == null){
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('下载完成'),
+        data.send((input!));
+      } else if (data is String) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('文件将保存在$data'),
         ));
       }
     });
@@ -93,58 +165,14 @@ class InputWidget extends StatelessWidget {
       sp.send(workerI.sendPort);
       workerI.listen((data) async {
         if (data is String) {
-          await download(
+          final path = await download(
             startUrl: data,
             addEdge: (a, b) => sp.send((a, b)),
           );
+          sp.send(path);
         }
       });
     }, mainI.sendPort, onExit: mainI.sendPort);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 120,
-      width: 400,
-      child: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(5),
-              child: TextFormField(
-                key: formKey,
-                initialValue: 'https://blog.virtualfuture.top/',
-                decoration: const InputDecoration(
-                  labelText: '输入网址',
-                  hintText: 'https://blog.virtualfuture.top/',
-                  contentPadding: EdgeInsets.only(left: 10),
-                ),
-                validator: (input) {
-                  if (input == null || input.isEmpty) {
-                    return '请输入网址';
-                  }
-                  final uri = Uri.tryParse(input);
-                  if (uri == null || !['http', 'https'].contains(uri.scheme)) {
-                    return '请输入正确的网址';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (input) {
-                  submit(input, context);
-                },
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              submit(formKey.currentState!.value, context);
-            },
-            child: const Text('添加'),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -213,44 +241,52 @@ class _SliderWidgetState extends State<SliderWidget> {
   @override
   Widget build(BuildContext context) {
     final notifier = context.read<ValueNotifier<(double, double)>>();
-    return SizedBox(
-      width: 300,
-      height: 100,
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Text('斥力'),
-              Slider(
-                value: p1,
-                onChanged: (value) {
-                  p1 = value;
-                  const start = 0.0025;
-                  const end = 0.1;
-                  final computed = (end - start) * value + start;
-                  notifier.value = (computed, notifier.value.$2);
-                  setState(() {});
-                },
-              )
-            ],
-          ),
-          Row(
-            children: [
-              const Text('引力'),
-              Slider(
-                value: p2,
-                onChanged: (value) {
-                  p2 = value;
-                  const start = 0.075;
-                  const end = 0.15;
-                  final computed = (end - start) * value + start;
-                  notifier.value = (notifier.value.$1, computed);
-                  setState(() {});
-                },
-              ),
-            ],
-          ),
-        ],
+    return Center(
+      child: SizedBox(
+        height: 100,
+        width: 300,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 10, right: 20),
+                  child: Text('斥力'),
+                ),
+                Slider(
+                  value: p1,
+                  onChanged: (value) {
+                    p1 = value;
+                    const start = 0.0025;
+                    const end = 0.1;
+                    final computed = (end - start) * value + start;
+                    notifier.value = (computed, notifier.value.$2);
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 10, right: 20),
+                  child: Text('引力'),
+                ),
+                Slider(
+                  value: p2,
+                  onChanged: (value) {
+                    p2 = value;
+                    const start = 0.035;
+                    const end = 0.15;
+                    final computed = (end - start) * value + start;
+                    notifier.value = (notifier.value.$1, computed);
+                    setState(() {});
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
