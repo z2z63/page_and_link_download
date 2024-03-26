@@ -8,6 +8,8 @@ jobs:
           flutter-version: '65cd84b588'
           channel: 'master'
       - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - run: flutter build linux --release
   relase:
     needs: build_linux
