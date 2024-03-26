@@ -1,3 +1,4 @@
+on: push
 jobs:
   build_linux:
     runs-on: ubuntu-latest
@@ -18,7 +19,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: app-release
-          path: build/linux/release/bundle/
+          path: build/linux/x64/release/bundle/
   relase:
     needs: build_linux
     runs-on: ubuntu-latest
@@ -29,5 +30,4 @@ jobs:
       - uses: softprops/action-gh-release@v1
         with:
           files: |
-            app-release/build/linux/release/bundle/*
-on: push
+            app-release/build/linux/x64/release/bundle/*
