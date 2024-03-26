@@ -11,7 +11,7 @@ jobs:
         with:
           flutter-version: '65cd84b588'
           channel: 'master'
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
       - run: |
@@ -24,8 +24,8 @@ jobs:
         with:
           name: app-release
           path: build/linux/linux.zip
-  relase:
-    needs: build_linux
+  release:
+    needs: [build_linux, build_windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
@@ -35,8 +35,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            app-release/linux.zip
-            app-release/windows.zip
+            linux.zip
+            windows.zip
             
 
   build_windows:
@@ -47,7 +47,7 @@ jobs:
         with:
           flutter-version: '65cd84b588'
           channel: 'master'
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
       - run: |
