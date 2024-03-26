@@ -52,7 +52,7 @@ jobs:
           toolchain: stable
       - run: |
           flutter build windows --release
-          Compress-Archive -Path build\windows\runner\Release -DestinationPath build\windows\windows.zip
+          Compress-Archive -Path build/windows/x64/runner/Release -DestinationPath build/windows/windows.zip
       - uses: actions/upload-artifact@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
