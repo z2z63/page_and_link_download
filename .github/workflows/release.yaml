@@ -19,10 +19,11 @@ jobs:
           sudo apt install -y curl git unzip xz-utils zip libglu1-mesa
           sudo apt install -y clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
           flutter build linux --release
+          zip -r build/linux/linux.zip build/linux/x64/release/bundle/
       - uses: actions/upload-artifact@v2
         with:
           name: app-release
-          path: build/linux/x64/release/bundle/
+          path: build/linux/linux.zip
   relase:
     needs: build_linux
     runs-on: ubuntu-latest
@@ -34,4 +35,26 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            app-release/build/linux/x64/release/bundle/*
+            app-release/linux.zip
+            app-release/windows.zip
+            
+
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '65cd84b588'
+          channel: 'master'
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: |
+          flutter build windows --release
+          Compress-Archive -Path build/windows/runner/Release -DestinationPath build/windows/windows.zip
+      - uses: actions/upload-artifact@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: app-release
+          path: build/windows/windows.zip
